@@ -4,31 +4,118 @@
   const $=id=>document.getElementById(id);
   const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const normalize=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[’‘']/g,'').replace(/[-–]/g,' ').trim();
-  const state={query:'',continent:'all',region:'all',mountain:'all',content:'all'};
+  const state={query:'',continent:'all',region:'all',mountain:'all',content:'all',favoritesOnly:false};
   const continents=['Nordamerika','Südamerika','Europa','Afrika','Asien','Ozeanien','Antarktika','Fiktiv'];
   const contentNames={base:'Hauptspiel',bonus:'PS3-Bonus',dlc:'DLC'};
   const levels=regions.flatMap(r=>Object.entries(r.mountains).flatMap(([mountain,names])=>names.map(name=>({name,mountain,region:r,id:`${r.id}-${normalize(name).replace(/[^a-z0-9]+/g,'-')}`}))));
+  const storageKey='ssx-atlas.favorites.v1';
+  const mountainKey=(regionId,name)=>`${regionId}:${name}`;
+  const favoriteNames={
+    regions:new Map(regions.map(r=>[r.id,r.name])),
+    mountains:new Map(levels.map(l=>[mountainKey(l.region.id,l.mountain),l.mountain]))
+  };
+  let favorites={regions:new Set(),mountains:new Set()};
+  let storageNotice='';
+  function readFavorites(){
+    try{
+      const raw=window.localStorage.getItem(storageKey);
+      const saved=raw===null?{}:JSON.parse(raw);
+      if(!saved||typeof saved!=='object'||Array.isArray(saved))throw new Error('Invalid favorites');
+      for(const kind of ['regions','mountains']){
+        favorites[kind]=new Set((Array.isArray(saved[kind])?saved[kind]:[]).filter(id=>typeof id==='string'&&favoriteNames[kind].has(id)));
+      }
+      storageNotice='';
+    }catch(error){
+      storageNotice=error instanceof SyntaxError||error.message==='Invalid favorites'
+        ?'Die gespeicherten Favoriten konnten nicht gelesen werden. Du kannst sie neu auswählen.'
+        :'Speichern ist in diesem Browser nicht verfügbar. Favoriten bleiben nur bis zum Neuladen erhalten.';
+    }
+  }
+  function saveFavorites(){
+    try{
+      window.localStorage.setItem(storageKey,JSON.stringify({version:1,regions:[...favorites.regions],mountains:[...favorites.mountains]}));
+      storageNotice='';
+    }catch{
+      storageNotice='Favoriten konnten nicht dauerhaft gespeichert werden. Sie bleiben nur bis zum Neuladen erhalten.';
+    }
+  }
+  function star(kind,key,extraClass=''){
+    const active=favorites[kind].has(key);
+    const name=favoriteNames[kind].get(key);
+    const label=`${kind==='regions'?'Region':'Berg'} ${name} ${active?'aus Favoriten entfernen':'als Favorit speichern'}`;
+    return `<button type="button" class="favorite-star ${extraClass}" data-favorite-kind="${kind}" data-favorite-key="${escape(key)}" aria-pressed="${active}" aria-label="${escape(label)}" title="${escape(label)}"><span aria-hidden="true">${active?'★':'☆'}</span></button>`;
+  }
+  function favoritesInfo(message=''){
+    const regionCount=favorites.regions.size,mountainCount=favorites.mountains.size;
+    $('favorites-filter').setAttribute('aria-pressed',String(state.favoritesOnly));
+    $('favorites-count').textContent=regionCount+mountainCount;
+    $('favorites-summary').textContent=regionCount+mountainCount
+      ?`${regionCount} ${regionCount===1?'Region':'Regionen'} · ${mountainCount} ${mountainCount===1?'Berg':'Berge'} gespeichert`
+      :'Noch keine Favoriten gespeichert.';
+    $('favorites-status').textContent=storageNotice||message;
+    $('favorites-status').classList.toggle('storage-warning',Boolean(storageNotice));
+  }
+  function toggleFavorite(button){
+    const kind=button.dataset.favoriteKind,key=button.dataset.favoriteKey;
+    if(!favoriteNames[kind]?.has(key))return;
+    const added=!favorites[kind].has(key);
+    if(added)favorites[kind].add(key);else favorites[kind].delete(key);
+    saveFavorites();
+    const inDialog=$('detail').contains(button);
+    render();
+    // Update the dialog in place so focus and scroll position stay intact.
+    $('detail-body').querySelectorAll('[data-favorite-kind]').forEach(b=>{
+      const active=favorites[b.dataset.favoriteKind].has(b.dataset.favoriteKey);
+      const label=`${b.dataset.favoriteKind==='regions'?'Region':'Berg'} ${favoriteNames[b.dataset.favoriteKind].get(b.dataset.favoriteKey)} ${active?'aus Favoriten entfernen':'als Favorit speichern'}`;
+      b.setAttribute('aria-pressed',String(active));b.setAttribute('aria-label',label);b.title=label;b.firstElementChild.textContent=active?'★':'☆';
+    });
+    const scope=inDialog?$('detail-body'):$('cards');
+    const replacement=[...scope.querySelectorAll('[data-favorite-kind]')].find(b=>b.dataset.favoriteKind===kind&&b.dataset.favoriteKey===key);
+    (replacement||$('favorites-filter')).focus({preventScroll:true});
+    favoritesInfo(`${favoriteNames[kind].get(key)} ${added?'zu Favoriten hinzugefügt.':'aus Favoriten entfernt.'}`);
+  }
+  readFavorites();
   let filtered=[],lastTrigger;
   function highlight(value){const q=state.query.trim();if(!q)return escape(value);const i=value.toLocaleLowerCase().indexOf(q.toLocaleLowerCase());return i<0?escape(value):escape(value.slice(0,i))+'<mark>'+escape(value.slice(i,i+q.length))+'</mark>'+escape(value.slice(i+q.length));}
   function matchesBase(r){return(state.continent==='all'||r.continent===state.continent)&&(state.content==='all'||r.content===state.content);}
-  function matches(l){const r=l.region;return matchesBase(r)&&(state.region==='all'||r.id===state.region)&&(state.mountain==='all'||l.mountain===state.mountain)&&normalize([l.name,l.mountain,r.name,r.gameName,r.country,r.continent,contentNames[r.content]].join(' ')).includes(normalize(state.query));}
+  function matches(l){const r=l.region;return matchesBase(r)&&(!state.favoritesOnly||favorites.regions.has(r.id)||favorites.mountains.has(mountainKey(r.id,l.mountain)))&&(state.region==='all'||r.id===state.region)&&(state.mountain==='all'||l.mountain===state.mountain)&&normalize([l.name,l.mountain,r.name,r.gameName,r.country,r.continent,contentNames[r.content]].join(' ')).includes(normalize(state.query));}
   function options(){const available=regions.filter(matchesBase);if(!available.some(r=>r.id===state.region))state.region='all';$('region').innerHTML='<option value="all">Alle Regionen</option>'+available.map(r=>`<option value="${r.id}">${escape(r.name)}</option>`).join('');$('region').value=state.region;const mountains=available.filter(r=>state.region==='all'||r.id===state.region).flatMap(r=>Object.keys(r.mountains)).sort((a,b)=>a.localeCompare(b));if(!mountains.includes(state.mountain))state.mountain='all';$('mountain').innerHTML='<option value="all">Alle Berge</option>'+mountains.map(m=>`<option>${escape(m)}</option>`).join('');$('mountain').value=state.mountain;}
   function navigation(){const values=['all',...continents];$('continents').innerHTML=values.map((c,i)=>`<button type="button" class="continent-button" data-continent="${c}" aria-pressed="${state.continent===c}"><span class="nav-icon" aria-hidden="true">${i===0?'◎':i===8?'◇':'⊙'}</span><span>${c==='all'?'Alle Kontinente':c==='Fiktiv'?'Mt. Eddie / DLC':c}</span><span class="continent-count">${levels.filter(l=>c==='all'||l.region.continent===c).length}</span></button>`).join('');}
   function picture(r,detail=false){const img=images[r.id];if(!img)return `<div class="fallback-picture">${escape(r.gameName)} · SSX 2012</div>`;return `<img ${detail?'class="detail-picture"':'loading="lazy"'} src="${escape(img.url)}" alt="${escape(img.caption)}" ${detail?'':'width="640" height="360"'}>`;}
-  function render(){filtered=levels.filter(matches);const shown=regions.filter(r=>filtered.some(l=>l.region===r));$('result-count').textContent=`${filtered.length} von ${levels.length} Leveln · ${shown.length} ${shown.length===1?'Region':'Regionen'}`;$('results-title').textContent=state.query?'Suchergebnisse':state.region!=='all'?regions.find(r=>r.id===state.region).name:state.continent==='all'?'Alle Regionen':state.continent==='Fiktiv'?'Mt. Eddie / DLC':state.continent;$('empty').hidden=filtered.length>0;$('cards').innerHTML=shown.map(r=>{const list=filtered.filter(l=>l.region===r),img=images[r.id];return `<article class="region-card"><div class="card-image">${picture(r)}<span class="image-label">${img?'SPIEL-SCREENSHOT':'SSX 2012'}</span><div class="image-heading"><div><span class="continent-label">${escape(r.continent==='Fiktiv'?'Fiktive Region':r.continent)}</span><h3>${escape(r.name)}</h3></div><span class="level-pill">${list.length} Level</span></div></div>${img?`<div class="image-source"><span>${escape(img.shortCaption||'Regionsansicht')}</span><a href="${escape(img.source)}" target="_blank" rel="noopener noreferrer">Bildquelle ↗</a></div>`:''}<div class="card-info"><span>${Object.keys(r.mountains).length} ${Object.keys(r.mountains).length===1?'Berg':'Berge'} · ${escape(r.country)}</span><span class="tag ${r.content==='dlc'?'dlc':''}">${contentNames[r.content]}</span></div><ul class="level-list">${list.map((l,i)=>`<li><button type="button" class="level-row" data-level="${l.id}" aria-label="${escape(l.name)} – ${escape(l.mountain)}: Details"><span class="level-number">${String(i+1).padStart(2,'0')}</span><span class="level-text"><span class="level-name">${highlight(l.name)}${r.deadly===l.name?'<span class="deadly-icon" title="Deadly Descent" aria-label="Deadly Descent">◆</span>':''}</span><span class="mountain-name">${highlight(l.mountain)}</span></span><span class="level-cue" aria-hidden="true">＋</span></button></li>`).join('')}</ul><div class="card-end"><span class="dot" aria-hidden="true"></span>${r.hazard?`Deadly Descent · ${escape(r.hazard)}`:r.content==='dlc'?'5 Strecken · 9 Race- / Trick-Events':'Mount Fuji · ursprünglich PS3-exklusiv'}</div></article>`}).join('');$('cards').querySelectorAll('img').forEach(img=>img.addEventListener('error',()=>{const note=document.createElement('div');note.className='fallback-picture';note.textContent='Bild nicht verfügbar · Quelle öffnen';img.replaceWith(note)},{once:true}));}
+  function render(){
+    filtered=levels.filter(matches);
+    const shown=regions.filter(r=>filtered.some(l=>l.region===r));
+    $('result-count').textContent=`${filtered.length} von ${levels.length} Leveln · ${shown.length} ${shown.length===1?'Region':'Regionen'}`;
+    $('results-title').textContent=state.favoritesOnly?'Meine Favoriten':state.query?'Suchergebnisse':state.region!=='all'?regions.find(r=>r.id===state.region).name:state.continent==='all'?'Alle Regionen':state.continent==='Fiktiv'?'Mt. Eddie / DLC':state.continent;
+    const noFavorites=state.favoritesOnly&&!favorites.regions.size&&!favorites.mountains.size;
+    $('empty').hidden=filtered.length>0;
+    $('empty-title').textContent=noFavorites?'Deine Favoriten warten auf dich.':'Kein Drop gefunden.';
+    $('empty-description').textContent=noFavorites?'Markiere eine Region oder einen Berg mit dem Stern. Hier findest du dann die dazugehörigen Level.':state.favoritesOnly?'Keine deiner Lieblingsstrecken passt zu den aktiven Filtern. Ändere die Suche oder zeige wieder alle Level.':'Versuche einen anderen Namen oder setze die Filter zurück.';
+    favoritesInfo();
+    $('cards').innerHTML=shown.map(r=>{
+      const list=filtered.filter(l=>l.region===r),img=images[r.id];
+      const mountainGroups=Object.keys(r.mountains).filter(m=>list.some(l=>l.mountain===m));
+      const groups=mountainGroups.map(mountain=>`<section class="mountain-group" aria-label="${escape(mountain)}"><div class="mountain-heading"><h4>${highlight(mountain)}</h4>${star('mountains',mountainKey(r.id,mountain))}</div><ul class="level-list">${list.filter(l=>l.mountain===mountain).map(l=>`<li><button type="button" class="level-row" data-level="${l.id}" aria-label="${escape(l.name)} – ${escape(l.mountain)}: Details"><span class="level-number">${String(list.indexOf(l)+1).padStart(2,'0')}</span><span class="level-text"><span class="level-name">${highlight(l.name)}${r.deadly===l.name?'<span class="deadly-icon" title="Deadly Descent" aria-label="Deadly Descent">◆</span>':''}</span></span><span class="level-cue" aria-hidden="true">＋</span></button></li>`).join('')}</ul></section>`).join('');
+      return `<article class="region-card"><div class="card-image">${picture(r)}<span class="image-label">${img?'SPIEL-SCREENSHOT':'SSX 2012'}</span>${star('regions',r.id,'region-star')}<div class="image-heading"><div><span class="continent-label">${escape(r.continent==='Fiktiv'?'Fiktive Region':r.continent)}</span><h3>${escape(r.name)}</h3></div><span class="level-pill">${list.length} Level</span></div></div>${img?`<div class="image-source"><span>${escape(img.shortCaption||'Regionsansicht')}</span><a href="${escape(img.source)}" target="_blank" rel="noopener noreferrer">Bildquelle ↗</a></div>`:''}<div class="card-info"><span>${Object.keys(r.mountains).length} ${Object.keys(r.mountains).length===1?'Berg':'Berge'} · ${escape(r.country)}</span><span class="tag ${r.content==='dlc'?'dlc':''}">${contentNames[r.content]}</span></div>${groups}<div class="card-end"><span class="dot" aria-hidden="true"></span>${r.hazard?`Deadly Descent · ${escape(r.hazard)}`:r.content==='dlc'?'5 Strecken · 9 Race- / Trick-Events':'Mount Fuji · ursprünglich PS3-exklusiv'}</div></article>`;
+    }).join('');
+    $('cards').querySelectorAll('img').forEach(img=>img.addEventListener('error',()=>{const note=document.createElement('div');note.className='fallback-picture';note.textContent='Bild nicht verfügbar · Quelle öffnen';img.replaceWith(note)},{once:true}));
+  }
   function update(){options();navigation();render();}
-  function reset(){Object.assign(state,{query:'',continent:'all',region:'all',mountain:'all',content:'all'});$('search').value='';$('content').value='all';update();}
-  function detail(id,trigger){const l=levels.find(l=>l.id===id);if(!l)return;const r=l.region,img=images[r.id];lastTrigger=trigger;$('detail-body').innerHTML=`${picture(r,true)}${img?`<div class="detail-caption">${escape(img.caption)} <a href="${escape(img.source)}" target="_blank" rel="noopener noreferrer">Bildquelle ↗</a></div>`:''}<div class="detail-content"><div class="breadcrumbs">${escape(r.continent)} / ${escape(r.name)} / ${escape(l.mountain)}</div><h2 id="detail-title">${escape(l.name)}</h2><dl class="detail-grid"><div><dt>Kontinent</dt><dd>${escape(r.continent==='Fiktiv'?'Fiktiv / nicht zugeordnet':r.continent)}</dd></div><div><dt>Region im Spiel</dt><dd>${escape(r.gameName)}</dd></div><div><dt>Berg</dt><dd>${escape(l.mountain)}</dd></div><div><dt>Spielinhalt</dt><dd>${contentNames[r.content]}</dd></div></dl><p>${escape(r.description)}</p>${r.deadly===l.name?`<p class="detail-note">◆ <strong>Deadly Descent: ${escape(r.hazard)}</strong><br>Ausrüstung: ${escape(r.gear)}.</p>`:l.name==='Death Zone'?'<p class="detail-note">World-Tour-Finale: Grudge Match gegen Griff an der Lhotse.</p>':r.content==='dlc'?`<p class="detail-note">Mt.-Eddie-Erweiterung. ${l.name==='The Kid’s Corner'?'Big-Air-Strecke mit Trick-Event.':'Race- und Trick-Event auf derselben Strecke.'}</p>`:''}<p class="detail-source">${img?'Das Bild zeigt die Region oder den ausdrücklich genannten Ausschnitt, nicht zwingend diesen Drop. ':''}Streckenzuordnung: <a href="${r.content==='dlc'?sources.eddie:sources.tracks}" target="_blank" rel="noopener noreferrer">${r.content==='dlc'?'Mt.-Eddie-Streckenliste':'SSX Wiki'}</a>.</p></div>`;$('detail').showModal();$('close-detail').focus();}
+  function reset(){Object.assign(state,{query:'',continent:'all',region:'all',mountain:'all',content:'all',favoritesOnly:false});$('search').value='';$('content').value='all';update();}
+  function detail(id,trigger){const l=levels.find(l=>l.id===id);if(!l)return;const r=l.region,img=images[r.id];lastTrigger=trigger;$('detail-body').innerHTML=`${picture(r,true)}${img?`<div class="detail-caption">${escape(img.caption)} <a href="${escape(img.source)}" target="_blank" rel="noopener noreferrer">Bildquelle ↗</a></div>`:''}<div class="detail-content"><div class="breadcrumbs">${escape(r.continent)} / ${escape(r.name)} / ${escape(l.mountain)}</div><h2 id="detail-title">${escape(l.name)}</h2><div class="detail-favorites"><div>${star('regions',r.id)}<span>Region merken</span></div><div>${star('mountains',mountainKey(r.id,l.mountain))}<span>Berg merken</span></div></div><dl class="detail-grid"><div><dt>Kontinent</dt><dd>${escape(r.continent==='Fiktiv'?'Fiktiv / nicht zugeordnet':r.continent)}</dd></div><div><dt>Region im Spiel</dt><dd>${escape(r.gameName)}</dd></div><div><dt>Berg</dt><dd>${escape(l.mountain)}</dd></div><div><dt>Spielinhalt</dt><dd>${contentNames[r.content]}</dd></div></dl><p>${escape(r.description)}</p>${r.deadly===l.name?`<p class="detail-note">◆ <strong>Deadly Descent: ${escape(r.hazard)}</strong><br>Ausrüstung: ${escape(r.gear)}.</p>`:l.name==='Death Zone'?'<p class="detail-note">World-Tour-Finale: Grudge Match gegen Griff an der Lhotse.</p>':r.content==='dlc'?`<p class="detail-note">Mt.-Eddie-Erweiterung. ${l.name==='The Kid’s Corner'?'Big-Air-Strecke mit Trick-Event.':'Race- und Trick-Event auf derselben Strecke.'}</p>`:''}<p class="detail-source">${img?'Das Bild zeigt die Region oder den ausdrücklich genannten Ausschnitt, nicht zwingend diesen Drop. ':''}Streckenzuordnung: <a href="${r.content==='dlc'?sources.eddie:sources.tracks}" target="_blank" rel="noopener noreferrer">${r.content==='dlc'?'Mt.-Eddie-Streckenliste':'SSX Wiki'}</a>.</p></div>`;$('detail').showModal();$('close-detail').focus();}
   $('search').addEventListener('input',e=>{state.query=e.target.value;render()});
   ['region','mountain','content'].forEach(key=>$(key).addEventListener('change',e=>{state[key]=e.target.value;if(key==='content')state.region=state.mountain='all';if(key==='region')state.mountain='all';update()}));
   $('continents').addEventListener('click',e=>{const b=e.target.closest('[data-continent]');if(b){state.continent=b.dataset.continent;state.region=state.mountain='all';update()}});
-  $('cards').addEventListener('click',e=>{const b=e.target.closest('[data-level]');if(b)detail(b.dataset.level,b)});
-  $('reset').addEventListener('click',reset);$('empty-reset').addEventListener('click',reset);$('close-detail').addEventListener('click',()=>$('detail').close());$('detail').addEventListener('click',e=>{if(e.target===$('detail')){const box=$('detail').getBoundingClientRect();if(e.clientX<box.left||e.clientX>box.right||e.clientY<box.top||e.clientY>box.bottom)$('detail').close()}});$('detail').addEventListener('close',()=>lastTrigger?.focus());
+  $('cards').addEventListener('click',e=>{const favorite=e.target.closest('[data-favorite-kind]');if(favorite){toggleFavorite(favorite);return;}const b=e.target.closest('[data-level]');if(b)detail(b.dataset.level,b)});
+  $('detail-body').addEventListener('click',e=>{const favorite=e.target.closest('[data-favorite-kind]');if(favorite)toggleFavorite(favorite)});
+  $('favorites-filter').addEventListener('click',()=>{state.favoritesOnly=!state.favoritesOnly;render()});
+  window.addEventListener('storage',e=>{if(e.key===storageKey||e.key===null){readFavorites();render();if($('detail').open){$('detail-body').querySelectorAll('[data-favorite-kind]').forEach(b=>{b.outerHTML=star(b.dataset.favoriteKind,b.dataset.favoriteKey)});}}});
+  $('reset').addEventListener('click',reset);$('empty-reset').addEventListener('click',reset);$('close-detail').addEventListener('click',()=>$('detail').close());$('detail').addEventListener('click',e=>{if(e.target===$('detail')){const box=$('detail').getBoundingClientRect();if(e.clientX<box.left||e.clientX>box.right||e.clientY<box.top||e.clientY>box.bottom)$('detail').close()}});$('detail').addEventListener('close',()=>{const target=lastTrigger?.isConnected?lastTrigger:[...$('cards').querySelectorAll('[data-level]')].find(b=>b.dataset.level===lastTrigger?.dataset.level);(target||$('favorites-filter')).focus({preventScroll:true})});
   document.addEventListener('keydown',e=>{if(e.key==='/'&&!['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName)&&!$('detail').open){e.preventDefault();$('search').focus()}});
   $('total-levels').textContent=levels.length;update();
   if(document.modelContext?.registerTool){
     const lifecycle=new AbortController();
-    const tool={name:'search_ssx_levels',title:'SSX-Level suchen',description:'Sucht SSX-Level und zeigt die Ergebnisse mit Kontinent-, Regions- und Inhaltsfilter im Atlas.',inputSchema:{type:'object',properties:{query:{type:'string'},continent:{type:'string',enum:['all',...continents]},content:{type:'string',enum:['all','base','bonus','dlc']}},additionalProperties:false},annotations:{readOnlyHint:false,untrustedContentHint:false},execute(input){if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(k=>!['query','continent','content'].includes(k))||(input.query!==undefined&&typeof input.query!=='string')||(input.continent!==undefined&&!['all',...continents].includes(input.continent))||(input.content!==undefined&&!['all','base','bonus','dlc'].includes(input.content)))throw new Error('Ungültige Suchparameter.');Object.assign(state,{query:input.query||'',continent:input.continent||'all',content:input.content||'all',region:'all',mountain:'all'});$('search').value=state.query;$('content').value=state.content;update();return{count:filtered.length,levels:filtered.map(l=>({name:l.name,mountain:l.mountain,region:l.region.name,continent:l.region.continent}))};}};
+    const tool={name:'search_ssx_levels',title:'SSX-Level suchen',description:'Sucht SSX-Level und zeigt die Ergebnisse mit Kontinent-, Regions- und Inhaltsfilter im Atlas.',inputSchema:{type:'object',properties:{query:{type:'string'},continent:{type:'string',enum:['all',...continents]},content:{type:'string',enum:['all','base','bonus','dlc']}},additionalProperties:false},annotations:{readOnlyHint:false,untrustedContentHint:false},execute(input){if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(k=>!['query','continent','content'].includes(k))||(input.query!==undefined&&typeof input.query!=='string')||(input.continent!==undefined&&!['all',...continents].includes(input.continent))||(input.content!==undefined&&!['all','base','bonus','dlc'].includes(input.content)))throw new Error('Ungültige Suchparameter.');Object.assign(state,{query:input.query||'',continent:input.continent||'all',content:input.content||'all',region:'all',mountain:'all',favoritesOnly:false});$('search').value=state.query;$('content').value=state.content;update();return{count:filtered.length,levels:filtered.map(l=>({name:l.name,mountain:l.mountain,region:l.region.name,continent:l.region.continent}))};}};
     try{Promise.resolve(document.modelContext.registerTool(tool,{signal:lifecycle.signal})).catch(()=>{});}catch{}
     window.addEventListener('pagehide',()=>lifecycle.abort(),{once:true});
   }
