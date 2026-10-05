@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SSX Atlas · Alle Level auf einen Blick</title>
+  <meta name="description" content="Dein Level-Atlas für SSX (2012) auf PS3: alle 70 benannten Abfahrten, sortiert nach Kontinent, Region und Berg. Mit Suche und Screenshots.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230c131b'/%3E%3Cpath d='M4 25 15 6l5 9 3-5 6 15H4Z' fill='%23d6fc53'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css"><script defer src="data.js"></script><script defer src="images.js"></script><script defer src="app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#results">Zu den Leveln</a>
+  <aside class="sidebar">
+    <a class="brand" href="./" aria-label="SSX Atlas Startseite"><span class="brand-logo">SSX<span>®</span></span><span class="brand-sub">THE LEVEL ATLAS</span></a>
+    <div class="edition"><span>PLAYSTATION 3</span><span>2012</span></div>
+    <nav aria-label="Kontinente"><p class="overline">DEIN NÄCHSTER DROP</p><div id="continents"></div></nav>
+    <div class="sidebar-bottom"><span class="small-mountain" aria-hidden="true">△</span><p>Ein Planet.<br>Jede Menge Abfahrten.</p><a href="#about">Über diesen Atlas</a><span class="fan-label">INOFFIZIELLER FAN-GUIDE</span></div>
+  </aside>
+  <div class="workspace">
+    <header class="topbar"><span><span class="tiny-cross">✳</span> EXPLORE THE WORLD</span><a href="#about">Quellen & Hinweise <span aria-hidden="true">↗</span></a></header>
+    <main>
+      <section class="intro" aria-labelledby="title"><div><p class="overline lime">SSX / 2012 / STRECKENVERZEICHNIS</p><h1 id="title">FINDE DEINEN <em>DROP.</em></h1><p class="intro-copy">Vom ersten Run bis zum letzten Gipfel. Alle Level, ihre Berge und Kontinente.</p></div><div class="stats"><div><strong id="total-levels">70</strong><span>LEVEL</span></div><div><strong>11</strong><span>REGIONEN</span></div><div><strong>7</strong><span>KONTINENTE</span></div></div></section>
+      <section class="controls" aria-label="Level suchen und filtern">
+        <div class="search-wrap"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><label class="sr-only" for="search">Level, Berg oder Region suchen</label><input id="search" type="search" placeholder="Level, Berg oder Region suchen …" autocomplete="off"><kbd aria-hidden="true">/</kbd></div>
+        <div class="filter-row"><div class="filter-field"><label for="region">Region</label><select id="region"><option value="all">Alle Regionen</option></select></div><div class="filter-field"><label for="mountain">Berg</label><select id="mountain"><option value="all">Alle Berge</option></select></div><div class="filter-field"><label for="content">Spielinhalt</label><select id="content"><option value="all">Hauptspiel + Extras</option><option value="base">Nur Hauptspiel</option><option value="bonus">PS3-Bonus: Japan</option><option value="dlc">Mt. Eddie DLC</option></select></div><button id="reset" class="reset" type="button">Zurücksetzen</button></div>
+      </section>
+      <section id="results" aria-labelledby="results-title" tabindex="-1"><div class="results-heading"><div><h2 id="results-title">Alle Regionen</h2><p id="result-count" role="status" aria-live="polite"></p></div><span class="count-note">Ein Level · mehrere Events</span></div><div id="cards" class="cards"></div><div id="empty" class="empty" hidden><span aria-hidden="true">⌕</span><h3>Kein Drop gefunden.</h3><p>Versuche einen anderen Namen oder setze die Filter zurück.</p><button id="empty-reset" class="primary" type="button">Alle Level anzeigen</button></div></section>
+      <section id="about" class="about"><div><p class="overline lime">GUT ZU WISSEN</p><h2>Die ganze Welt von SSX.</h2><p>62 Level im Hauptspiel, 3 am Mount Fuji und 5 auf Mt. Eddie. Race-, Trick- und Survive-Events derselben Strecke werden nicht doppelt gezählt. Tutorials sind nicht Teil dieses Streckenverzeichnisses.</p><p>Die Kontinente sind geografisch zugeordnet. Mt. Eddie ist fiktiv und steht deshalb separat. Die englischen Levelnamen entsprechen den Quellen.</p></div><div><h3>Quellen & Bildnachweise</h3><p>Strecken und Berge: <a href="https://ssx.fandom.com/wiki/SSX_%282012%29%27s_Tracks" target="_blank" rel="noopener noreferrer">SSX Wiki</a>. Deadly Descents: <a href="https://gamefaqs.gamespot.com/ps3/615810-ssx/faqs/63954" target="_blank" rel="noopener noreferrer">PS3-Guide von BenDstraw</a>. Mt. Eddie: <a href="https://gamefaqs.gamespot.com/boards/615811-ssx/62686310" target="_blank" rel="noopener noreferrer">Streckenliste</a> und <a href="https://www.ea.com/de-de/news/ssx-classic-dlc-jetzt-erhaeltlich" target="_blank" rel="noopener noreferrer">EA-Ankündigung</a>.</p><p>Screenshots dienen zur Orientierung; ihre Quelle und der genaue Bezug stehen beim Bild. Sie können aus der PS3- oder Xbox-360-Fassung stammen. Spiel und Bildrechte liegen bei den jeweiligen Rechteinhabern. Kein offizielles Angebot von EA.</p><p class="updated">RECHERCHESTAND · 05. OKTOBER 2026</p></div></section>
+    </main><footer><span class="footer-logo">SSX / ATLAS</span><span>RACE IT. TRICK IT. SURVIVE IT.</span><a href="#title">Nach oben ↑</a></footer>
+  </div>
+  <dialog id="detail" aria-labelledby="detail-title"><button id="close-detail" class="close" type="button" aria-label="Details schließen">×</button><div id="detail-body"></div></dialog>
+  <noscript><p class="noscript">Bitte JavaScript aktivieren, um die Levelübersicht und Suche zu nutzen.</p></noscript>
+</body>
+</html>
