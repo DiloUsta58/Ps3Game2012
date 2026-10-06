@@ -117,7 +117,7 @@
   }
   let galleryTimer;
   function stopGallery(){if(galleryTimer){clearInterval(galleryTimer);galleryTimer=undefined;}if(galleryTransitionTimer){clearTimeout(galleryTransitionTimer);galleryTransitionTimer=undefined;}}
-  function startGallery(){stopGallery();const root=$('detail-body').querySelector('[data-gallery]');if(!root||Number(root.dataset.galleryCount)<2||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;galleryTimer=setInterval(()=>{if(document.hidden||!$('detail').open)return;const index=Number(root.querySelector('[data-gallery-counter]').textContent.split(' ')[0]);showGallerySlide(index);},3000);}
+  function startGallery(){if(galleryTimer){clearInterval(galleryTimer);galleryTimer=undefined;}const root=$('detail-body').querySelector('[data-gallery]');if(!root||Number(root.dataset.galleryCount)<2||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;galleryTimer=setInterval(()=>{if(document.hidden||!$('detail').open)return;const index=Number(root.querySelector('[data-gallery-counter]').textContent.split(' ')[0]);showGallerySlide(index);},3000);}
   function render(){
     filtered=levels.filter(matches);
     const shown=regions.filter(r=>filtered.some(l=>l.region===r));
