@@ -34,8 +34,10 @@ assert.ok(helperStart>=0&&helperEnd>helperStart,'Record helpers exist');
 const helpers=new Function(app.slice(helperStart,helperEnd)+'\nreturn {parseRaceInput,parseMetersInput,parsePointsInput};')();
 assert.equal(helpers.parseRaceInput('053').formatted,'00:53,00');
 assert.equal(helpers.parseRaceInput('0053,25').ms,53250);
-assert.equal(helpers.parseMetersInput('11876,24').formatted,'11.876,24 m');
+assert.equal(helpers.parseMetersInput('11876,24').formatted,'11.876,24');
+assert.equal(helpers.parseMetersInput('11.876,24 m').cm,1187624);
 assert.equal(helpers.parsePointsInput('54333300').formatted,'54.333.300');
+assert.match(app,/trickPointsDay/);assert.match(app,/trickPointsNight/);assert.match(app,/Rolling Thunder/);
 const html = fs.readFileSync(file('index.html'),'utf8');
 for(const [,reference] of html.matchAll(/(?:src|href)="([^"]+)"/g)){
   if(reference.startsWith('#')||/^(https?:|data:)/.test(reference))continue;
