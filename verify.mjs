@@ -45,4 +45,10 @@ for(const [,reference] of html.matchAll(/(?:src|href)="([^"]+)"/g)){
   assert.ok(fs.existsSync(file(reference.split('?')[0])),`Missing local file: ${reference}`);
 }
 assert.match(html,/id="export-backup"/);assert.match(html,/id="import-backup"/);
-console.log('Verified: 70 levels, 11 regions, 159 gallery images, time parsing/formatting, JSON backup controls and local assets.');
+const manifest=JSON.parse(fs.readFileSync(file('site.webmanifest'),'utf8'));
+assert.equal(manifest.short_name,'SSX Atlas');
+for(const icon of manifest.icons){const png=fs.readFileSync(file(icon.src.split('?')[0]));assert.equal(png.readUInt32BE(16),Number(icon.sizes.split('x')[0]));assert.equal(png.readUInt32BE(20),Number(icon.sizes.split('x')[1]));}
+assert.ok(fs.existsSync(file('assets/apple-touch-icon.png')));
+assert.ok(fs.existsSync(file('assets/SSX_Tricky_logo.png')));
+assert.match(fs.readFileSync(file('assets/ssx-icon.svg'),'utf8'),/SSX_Tricky_logo\.png/);
+console.log('Verified: 70 levels, 11 regions, 159 gallery images, score parsing, JSON backup controls, local assets and SSX app icons.');
