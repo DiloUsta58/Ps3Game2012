@@ -24,10 +24,20 @@ for(const [id,photos] of Object.entries(dropImages)){assert.ok(names.some(name=>
 for(const [key,photos] of Object.entries(mountainImages)){assert.ok(key.includes(':'),`Invalid mountain key: ${key}`);for(const asset of photos){assert.ok(fs.existsSync(file(asset)),`Missing mountain screenshot: ${asset}`);galleryAssets++;}}
 assert.equal(galleryAssets,76);
 for(const asset of ['index.html','.nojekyll','styles.css','app.js','data.js','images.js','drop-images.js'])assert.ok(fs.existsSync(file(asset)));
+const app=fs.readFileSync(file('app.js'),'utf8');
+const helperStart=app.indexOf('function formatRace');
+const helperEnd=app.indexOf('function timeDisplay',helperStart);
+assert.ok(helperStart>=0&&helperEnd>helperStart,'Record helpers exist');
+const helpers=new Function(app.slice(helperStart,helperEnd)+'\nreturn {parseRaceInput,parseMetersInput,parsePointsInput};')();
+assert.equal(helpers.parseRaceInput('053').formatted,'00:53,00');
+assert.equal(helpers.parseRaceInput('0053,25').ms,53250);
+assert.equal(helpers.parseMetersInput('11876,24').formatted,'11.876,24 m');
+assert.equal(helpers.parsePointsInput('54333300').formatted,'54.333.300');
 const html = fs.readFileSync(file('index.html'),'utf8');
 for(const [,reference] of html.matchAll(/(?:src|href)="([^"]+)"/g)){
   if(reference.startsWith('#')||/^(https?:|data:)/.test(reference))continue;
   assert.ok(!reference.startsWith('/'),`Not relative: ${reference}`);
   assert.ok(fs.existsSync(file(reference)),`Missing local file: ${reference}`);
 }
-console.log('Verified: 70 unique levels, 11 regions, 11 region screenshots, 76 gallery screenshots, 9 Deadly Descents and all referenced local assets.');
+assert.match(html,/id="export-backup"/);assert.match(html,/id="import-backup"/);
+console.log('Verified: 70 levels, 11 regions, 76 gallery images, time parsing/formatting, JSON backup controls and local assets.');
