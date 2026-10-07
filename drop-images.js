@@ -63,6 +63,121 @@ window.SSX_DROP_IMAGES = {
     "assets/drops/alaska-unsanctioned-02.jpg",
     "assets/drops/alaska-unsanctioned-03.jpg"
   ],
+  "alps-beyond-the-fall": [
+    "assets/drops/alps-beyond-the-fall-01.jpg",
+    "assets/drops/alps-beyond-the-fall-02.jpg",
+    "assets/drops/alps-beyond-the-fall-03.jpg"
+  ],
+  "alps-broken-pass": [
+    "assets/drops/alps-broken-pass-01.jpg",
+    "assets/drops/alps-broken-pass-02.jpg",
+    "assets/drops/alps-broken-pass-03.jpg",
+    "assets/drops/alps-broken-pass-04.jpg"
+  ],
+  "alps-hard-currency": [
+    "assets/drops/alps-hard-currency-01.jpg",
+    "assets/drops/alps-hard-currency-02.jpg",
+    "assets/drops/alps-hard-currency-03.jpg"
+  ],
+  "alps-one-step-ahead": [
+    "assets/drops/alps-one-step-ahead-01.jpg",
+    "assets/drops/alps-one-step-ahead-02.jpg",
+    "assets/drops/alps-one-step-ahead-03.jpg",
+    "assets/drops/alps-one-step-ahead-04.jpg",
+    "assets/drops/alps-one-step-ahead-05.jpg"
+  ],
+  "alps-one-way-ticket": [
+    "assets/drops/alps-one-way-ticket-01.jpg",
+    "assets/drops/alps-one-way-ticket-02.jpg",
+    "assets/drops/alps-one-way-ticket-03.jpg"
+  ],
+  "alps-the-hammer": [
+    "assets/drops/alps-the-hammer-01.jpg",
+    "assets/drops/alps-the-hammer-02.jpg",
+    "assets/drops/alps-the-hammer-03.jpg"
+  ],
+  "alps-wachter": [
+    "assets/drops/alps-wachter-01.jpg",
+    "assets/drops/alps-wachter-02.jpg",
+    "assets/drops/alps-wachter-03.jpg",
+    "assets/drops/alps-wachter-04.jpg"
+  ],
+  "africa-corkscrew": [
+    "assets/drops/africa-corkscrew-01.jpg",
+    "assets/drops/africa-corkscrew-02.jpg",
+    "assets/drops/africa-corkscrew-03.jpg",
+    "assets/drops/africa-corkscrew-04.jpg"
+  ],
+  "africa-hush": [
+    "assets/drops/africa-hush-01.jpg",
+    "assets/drops/africa-hush-02.jpg",
+    "assets/drops/africa-hush-03.jpg",
+    "assets/drops/africa-hush-04.jpg"
+  ],
+  "africa-incoming": [
+    "assets/drops/africa-incoming-01.jpg",
+    "assets/drops/africa-incoming-02.jpg",
+    "assets/drops/africa-incoming-03.jpg",
+    "assets/drops/africa-incoming-04.jpg",
+    "assets/drops/africa-incoming-05.jpg",
+    "assets/drops/africa-incoming-06.jpg"
+  ],
+  "africa-red-light": [
+    "assets/drops/africa-red-light-01.jpg",
+    "assets/drops/africa-red-light-02.jpg",
+    "assets/drops/africa-red-light-03.jpg"
+  ],
+  "africa-snake-bite": [
+    "assets/drops/africa-snake-bite-01.jpg",
+    "assets/drops/africa-snake-bite-02.jpg",
+    "assets/drops/africa-snake-bite-03.jpg",
+    "assets/drops/africa-snake-bite-04.jpg",
+    "assets/drops/africa-snake-bite-05.jpg"
+  ],
+  "himalayas-bear-claw": [
+    "assets/drops/himalayas-bear-claw-01.jpg",
+    "assets/drops/himalayas-bear-claw-02.jpg",
+    "assets/drops/himalayas-bear-claw-03.jpg"
+  ],
+  "himalayas-burnout": [
+    "assets/drops/himalayas-burnout-01.jpg",
+    "assets/drops/himalayas-burnout-02.jpg",
+    "assets/drops/himalayas-burnout-03.jpg"
+  ],
+  "himalayas-fall-from-grace": [
+    "assets/drops/himalayas-fall-from-grace-01.jpg",
+    "assets/drops/himalayas-fall-from-grace-02.jpg",
+    "assets/drops/himalayas-fall-from-grace-03.jpg",
+    "assets/drops/himalayas-fall-from-grace-04.jpg"
+  ],
+  "himalayas-the-monster": [
+    "assets/drops/himalayas-the-monster-01.jpg",
+    "assets/drops/himalayas-the-monster-02.jpg",
+    "assets/drops/himalayas-the-monster-03.jpg"
+  ],
+  "siberia-critical-mass": [
+    "assets/drops/siberia-critical-mass-01.jpg",
+    "assets/drops/siberia-critical-mass-02.jpg",
+    "assets/drops/siberia-critical-mass-03.jpg"
+  ],
+  "siberia-diamond-back": [
+    "assets/drops/siberia-diamond-back-01.jpg",
+    "assets/drops/siberia-diamond-back-02.jpg",
+    "assets/drops/siberia-diamond-back-03.jpg"
+  ],
+  "siberia-dont-make-me": [
+    "assets/drops/siberia-dont-make-me-01.jpg",
+    "assets/drops/siberia-dont-make-me-02.jpg",
+    "assets/drops/siberia-dont-make-me-03.jpg"
+  ],
+  "siberia-punch-up": [
+    "assets/drops/siberia-punch-up-01.jpg",
+    "assets/drops/siberia-punch-up-02.jpg"
+  ],
+  "siberia-vapor-trail": [
+    "assets/drops/siberia-vapor-trail-01.jpg",
+    "assets/drops/siberia-vapor-trail-02.jpg"
+  ],
   "patagonia-blackbox": [
     "assets/drops/patagonia-blackbox-01.jpg",
     "assets/drops/patagonia-blackbox-02.jpg",
@@ -138,6 +253,22 @@ window.SSX_DROP_IMAGES = {
     "assets/drops/new-zealand-zombies-with-jetpacks-01.jpg",
     "assets/drops/new-zealand-zombies-with-jetpacks-02.jpg",
     "assets/drops/new-zealand-zombies-with-jetpacks-03.jpg"
+  ],
+  "japan-99-assassins": [
+    "assets/drops/japan-99-assassins-01.jpg",
+    "assets/drops/japan-99-assassins-02.jpg",
+    "assets/drops/japan-99-assassins-03.jpg"
+  ],
+  "japan-area-zero": [
+    "assets/drops/japan-area-zero-01.jpg",
+    "assets/drops/japan-area-zero-02.jpg",
+    "assets/drops/japan-area-zero-03.jpg"
+  ],
+  "japan-home-run": [
+    "assets/drops/japan-home-run-01.jpg",
+    "assets/drops/japan-home-run-02.jpg",
+    "assets/drops/japan-home-run-03.jpg",
+    "assets/drops/japan-home-run-04.jpg"
   ]
 };
 window.SSX_MOUNTAIN_IMAGES = {

@@ -99,9 +99,10 @@
   function matches(l){const r=l.region;return matchesBase(r)&&(!state.favoritesOnly||favorites.regions.has(r.id)||favorites.mountains.has(mountainKey(r.id,l.mountain)))&&(state.region==='all'||r.id===state.region)&&(state.mountain==='all'||l.mountain===state.mountain)&&normalize([l.name,l.mountain,r.name,r.gameName,r.country,r.continent,contentNames[r.content]].join(' ')).includes(normalize(state.query));}
   function options(){const available=regions.filter(matchesBase);if(!available.some(r=>r.id===state.region))state.region='all';$('region').innerHTML='<option value="all">Alle Regionen</option>'+available.map(r=>`<option value="${r.id}">${escape(r.name)}</option>`).join('');$('region').value=state.region;const mountains=available.filter(r=>state.region==='all'||r.id===state.region).flatMap(r=>Object.keys(r.mountains)).sort((a,b)=>a.localeCompare(b));if(!mountains.includes(state.mountain))state.mountain='all';$('mountain').innerHTML='<option value="all">Alle Berge</option>'+mountains.map(m=>`<option>${escape(m)}</option>`).join('');$('mountain').value=state.mountain;}
   function navigation(){const values=['all',...continents];$('continents').innerHTML=values.map((c,i)=>`<button type="button" class="continent-button" data-continent="${c}" aria-pressed="${state.continent===c}"><span class="nav-icon" aria-hidden="true">${i===0?'◎':i===8?'◇':'⊙'}</span><span>${c==='all'?'Alle Kontinente':c==='Fiktiv'?'Mt. Eddie / DLC':c}</span><span class="continent-count">${levels.filter(l=>c==='all'||l.region.continent===c).length}</span></button>`).join('');}
-  function picture(r,detail=false){const img=images[r.id];if(!img)return `<div class="fallback-picture">${escape(r.gameName)} · SSX 2012</div>`;return `<img ${detail?'class="detail-picture"':'loading="lazy"'} src="${escape(img.url)}" alt="${escape(img.caption)}" ${detail?'':'width="640" height="360"'}>`;}
+  function cacheBusted(url){return `${url}?v=20261008-1`;}
+  function picture(r,detail=false){const img=images[r.id];if(!img)return `<div class="fallback-picture">${escape(r.gameName)} · SSX 2012</div>`;return `<img ${detail?'class="detail-picture"':'loading="lazy"'} src="${escape(cacheBusted(img.url))}" alt="${escape(img.caption)}" ${detail?'':'width="640" height="360"'}>`;}
   function gallery(l,r){
-    const track=(dropImages[l.id]||[]).map(url=>({url,caption:`${l.name} · Screenshot`})),mountain=mountainImages[mountainKey(r.id,l.mountain)]||[],source=images[r.id];
+    const track=(dropImages[l.id]||[]).map(url=>({url:cacheBusted(url),caption:`${l.name} · Screenshot`})),mountain=(mountainImages[mountainKey(r.id,l.mountain)]||[]).map(url=>cacheBusted(url)),source=images[r.id];
     const photos=track.length?track:mountain.length?mountain.map(url=>({url,caption:`${l.mountain} · Bergansicht`})):source?[{url:source.url,caption:source.caption,source:source.source,credit:true}]:[];
     if(!photos.length)return `<div class="fallback-picture detail-fallback">${escape(r.gameName)} · SSX 2012</div>`;
     const label=track.length?'Screenshot des Levels':mountain.length?'Screenshot des Berges':'Regionsansicht';
@@ -112,7 +113,7 @@
   function showGallerySlide(index){
     const root=$('detail-body').querySelector('[data-gallery]');if(!root)return;
     const level=levels.find(item=>item.id===root.dataset.levelId);if(!level)return;
-    const r=level.region,track=(dropImages[level.id]||[]).map(url=>({url,caption:`${level.name} · Screenshot`})),mountain=mountainImages[mountainKey(r.id,level.mountain)]||[],source=images[r.id];
+    const r=level.region,track=(dropImages[level.id]||[]).map(url=>({url:cacheBusted(url),caption:`${level.name} · Screenshot`})),mountain=(mountainImages[mountainKey(r.id,level.mountain)]||[]).map(url=>cacheBusted(url)),source=images[r.id];
     const photos=track.length?track:mountain.length?mountain.map(url=>({url,caption:`${level.mountain} · Bergansicht`})):source?[{url:source.url,caption:source.caption}]:[];
     if(photos.length<2)return;
     const next=(index+photos.length)%photos.length,photo=photos[next];
