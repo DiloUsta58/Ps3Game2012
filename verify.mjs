@@ -18,6 +18,9 @@ for(const region of regions){
   if(region.deadly)assert.ok(drops.includes(region.deadly));
 }
 assert.equal(names.length,70); assert.equal(new Set(names).size,70);
+for(const name of ['Wrecking Crew','Invincible','One Step Ahead','Hard Currency','Wächter','The Monster','Fall from Grace','Death Zone','Critical Mass'])assert.ok(names.includes(name),`Missing survival drop: ${name}`);
+assert.ok(!names.includes('Sentinel'));
+
 assert.deepEqual(counts,{base:62,bonus:3,dlc:5});
 let galleryAssets=0;
 for(const [id,photos] of Object.entries(dropImages)){assert.ok(names.some(name=>{const region=regions.find(r=>Object.values(r.mountains).flat().includes(name));return region&&id===region.id+'-'+name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[’‘']/g,'').replace(/[-–]/g,' ').trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}),`Unknown level gallery: ${id}`);for(const asset of photos){assert.ok(fs.existsSync(file(asset)),`Missing drop screenshot: ${asset}`);galleryAssets++;}}

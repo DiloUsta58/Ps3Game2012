@@ -30,9 +30,9 @@ Die eingebundenen Dateien liegen in `assets/drops/` und `assets/mountains/`; Zuo
 
 ## Persönliche Rekorde und Backup
 
-Im Detail eines Levels lassen sich Rennen, Tricky und – nur bei als Deadly Descent verfügbaren Strecken – Überleben speichern. Die Zeiten und Punktzahlen werden lokal im Browser auf diesem Gerät abgelegt; sie synchronisieren sich nicht automatisch zwischen Geräten. Rennen verwendet das Format Minuten:Sekunden,Hundertstel; die Eingabe akzeptiert kompakte Ziffern wie `0053,25` und ergänzt den Doppelpunkt. Überleben wird in Metern mit zwei Nachkommastellen, Tricky als Punktzahl erfasst.
+Im Detail eines Levels lassen sich Rennen und Tricky sowie bei allen verfügbaren Überleben-Strecken auch die Überlebensdistanz speichern. Dazu gehören die Deadly Descents und Wrecking Crew, Invincible, One Step Ahead, Hard Currency, Wächter, The Monster, Fall from Grace, Death Zone sowie Critical Mass. Die Zeiten und Punktzahlen werden lokal im Browser auf diesem Gerät abgelegt; sie synchronisieren sich nicht automatisch zwischen Geräten. Rennen verwendet das Format Minuten:Sekunden,Hundertstel; die Eingabe akzeptiert kompakte Ziffern wie `0053,25` und ergänzt den Doppelpunkt. Überleben wird in Metern mit zwei Nachkommastellen, Tricky als Punktzahl erfasst.
 
-Über **Backup herunterladen (.json)** sicherst du Favoriten und Rekorde in einer JSON-Datei. **Backup importieren** stellt sie wieder her und ergänzt bestehende Werte: die schnellere Rennzeit sowie die höhere Überlebensdistanz und Punktzahl bleiben erhalten.
+Über **Backup speichern unter … (.json)** sicherst du Favoriten und Rekorde in einer JSON-Datei. Unterstützte Browser öffnen die Speicherort-Auswahl; auf dem iPhone kannst du im Teilen-Menü **In Dateien sichern** wählen. **Backup importieren** stellt sie wieder her und ergänzt bestehende Werte: die schnellere Rennzeit sowie die höhere Überlebensdistanz und Punktzahl bleiben erhalten.
 
 ## Daten prüfen
 
