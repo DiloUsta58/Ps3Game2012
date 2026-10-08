@@ -51,4 +51,7 @@ for(const icon of manifest.icons){const png=fs.readFileSync(file(icon.src.split(
 assert.ok(fs.existsSync(file('assets/apple-touch-icon.png')));
 assert.ok(fs.existsSync(file('assets/SSX_Tricky_logo.png')));
 assert.match(fs.readFileSync(file('assets/ssx-icon.svg'),'utf8'),/SSX_Tricky_logo\.png/);
-console.log('Verified: 70 levels, 11 regions, 159 gallery images, score parsing, JSON backup controls, local assets and SSX app icons.');
+assert.match(app,/navigator\.share\(\{files:\[file\],title:'SSX Atlas Backup'\}\)/);
+assert.doesNotMatch(app,/navigator\.share\(\{files:\[file\],[^}]*text:/);
+assert.match(app,/window\.prompt\('Gib einen Dateinamen für dein Backup ein/);
+console.log('Verified: 70 levels, 11 regions, 159 gallery images, score parsing, JSON backup/name controls, local assets and SSX app icons.');
